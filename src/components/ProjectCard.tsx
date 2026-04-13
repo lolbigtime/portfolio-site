@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Project } from "@/types";
 import TechTag from "./TechTag";
 
+const COLLAPSED_HEIGHT = 72; // ~3 lines of text
+
 export default function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false);
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  const fullHeight = innerRef.current?.scrollHeight ?? COLLAPSED_HEIGHT;
 
   return (
     <div className="card-item">
@@ -29,12 +34,17 @@ export default function ProjectCard({ project }: { project: Project }) {
               {project.title}
             </h3>
             <div
-              className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
-              style={{ maxHeight: expanded ? "600px" : "4.5rem" }}
+              style={{
+                height: expanded ? fullHeight : COLLAPSED_HEIGHT,
+                overflow: "hidden",
+                transition: "height 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
             >
-              <p className="mt-2 text-sm leading-relaxed text-graphite">
-                {project.description}
-              </p>
+              <div ref={innerRef}>
+                <p className="mt-2 text-sm leading-relaxed text-graphite">
+                  {project.description}
+                </p>
+              </div>
             </div>
             <div className="mt-4 flex items-center justify-between">
               <div className="flex flex-wrap gap-2">

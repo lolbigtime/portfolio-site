@@ -15,7 +15,7 @@ export default function ProjectsSection() {
 
       <div className="flex flex-col gap-10">
         <div>
-          <p className="mb-6 text-graphite leading-relaxed font-medium">Featured</p>
+          <p className="mb-6 text-graphite leading-relaxed font-medium">Featured projects you should check out.</p>
           <div className="card-group flex flex-col gap-4">
             {featured.map((project) => (
               <ProjectCard key={project.title} project={project} />
