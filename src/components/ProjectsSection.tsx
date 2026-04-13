@@ -9,6 +9,9 @@ export default function ProjectsSection() {
           Projects
         </h2>
       </div>
+      <p className="mb-6 text-graphite leading-relaxed">
+        Here&apos;s some cool projects I worked on in no particular order:
+      </p>
       <div className="card-group flex flex-col gap-4">
         {projects.map((project) => (
           <ProjectCard key={project.title} project={project} />

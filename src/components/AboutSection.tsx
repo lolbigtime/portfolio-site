@@ -18,8 +18,7 @@ export default function AboutSection() {
           My research spans deep learning for biomedical imaging at OHSU and
           computational genomics at UCSF. Outside of research, I&apos;m
           interested in reinforcement learning and getting computers to play
-          games. I also love building apps — my projects have been downloaded
-          over 25,000 times.
+          games.
         </p>
       </div>
     </section>
