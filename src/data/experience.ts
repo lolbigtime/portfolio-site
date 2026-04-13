@@ -16,7 +16,7 @@ export const experiences: Experience[] = [
     url: "https://www.ohsu.edu",
     range: "2023 — 2025",
     description:
-      "Developed CNN and U-Net models to analyze OCTA scans for dilated vessel detection as a biomarker of diabetic retinopathy. Improved segmentation through hyperparameter tuning and data augmentation, evaluating with AUC, IoU, and sensitivity metrics. Presented findings at the OHSU Research Symposium.",
+      "Developed CNN and U-Net models to analyze OCTA scans for dilated vessel detection as a biomarker of diabetic retinopathy. Improved segmentation through hyperparameter tuning and data augmentation, evaluating with AUC, IoU, and sensitivity metrics.",
     technologies: ["Python", "PyTorch", "CNN", "U-Net", "Computer Vision", "MATLAB"],
   },
   {

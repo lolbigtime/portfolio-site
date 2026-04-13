@@ -13,4 +13,5 @@ export interface Project {
   url: string;
   image?: string;
   technologies: string[];
+  featured?: boolean;
 }

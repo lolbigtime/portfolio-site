@@ -26,31 +26,7 @@ export default function ProjectCard({ project }: { project: Project }) {
           )}
           <div>
             <h3 className="text-ink font-semibold leading-snug">
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 hover:text-violet transition-colors duration-200"
-              >
-                {project.title}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="inline-block transition-transform duration-200 hover:-translate-y-0.5 hover:translate-x-0.5"
-                  aria-hidden="true"
-                >
-                  <path d="M7 17L17 7" />
-                  <path d="M7 7h10v10" />
-                </svg>
-              </a>
+              {project.title}
             </h3>
             <div
               className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
