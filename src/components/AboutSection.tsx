@@ -9,16 +9,10 @@ export default function AboutSection() {
       <div className="flex flex-col gap-4 text-graphite leading-relaxed">
         <p>
           I&apos;m a Computer Science and Bioengineering student at the
-          University of Illinois Urbana-Champaign, passionate about using AI
-          systems to accelerate scientific discovery. I&apos;m drawn to the
-          intersection of machine learning and biology, where computational
-          tools can unlock insights that would be impossible to find by hand.
-        </p>
-        <p>
-          My research spans deep learning for biomedical imaging at OHSU and
-          computational genomics at UCSF. Outside of research, I&apos;m
-          interested in reinforcement learning and getting computers to play
-          games.
+          University of Illinois Urbana-Champaign. My research spans deep
+          learning for biomedical imaging at OHSU and computational genomics
+          at UCSF. Outside of research, I&apos;m interested in reinforcement
+          learning and getting computers to play games.
         </p>
       </div>
     </section>
