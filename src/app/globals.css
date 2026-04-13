@@ -1,26 +1,221 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Base */
+body {
+  background-color: #FAF9F6;
+  color: #4a4a5a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .motion-reduce-hidden {
+    display: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Selection */
+::selection {
+  background-color: #c4b5e0;
+  color: #1a1a2e;
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* Prismatic border on hover - uses pseudo-element */
+.prismatic-border {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.prismatic-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  padding: 1px;
+  background: linear-gradient(135deg, #e8b4cb, #c4b5e0, #a8d8ea, #b8e6d0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.prismatic-border:hover::before {
+  opacity: 1;
+}
+
+/* Nav indicator line */
+.nav-line {
+  height: 1px;
+  transition: all 0.3s ease;
+}
+
+.nav-line-inactive {
+  width: 32px;
+  background-color: #e8e8ec;
+}
+
+.nav-line-active {
+  width: 64px;
+  background: linear-gradient(90deg, #e8b4cb, #a8d8ea);
+}
+
+/* Prismatic text gradient (for subtle accents) */
+.prismatic-text {
+  background: linear-gradient(135deg, #e8b4cb, #c4b5e0, #a8d8ea, #b8e6d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tech tag */
+.tech-tag {
+  background: linear-gradient(135deg, rgba(232, 180, 203, 0.12), rgba(196, 181, 224, 0.12), rgba(168, 216, 234, 0.12));
+  color: #4a4a5a;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tech-tag:hover {
+  background: linear-gradient(135deg, rgba(232, 180, 203, 0.2), rgba(196, 181, 224, 0.2), rgba(168, 216, 234, 0.2));
+}
+
+/* Link hover effect */
+a.prismatic-link {
+  transition: color 0.2s ease;
+}
+
+a.prismatic-link:hover {
+  color: #9b8ec4;
+}
+
+/* Focus visible styles */
+*:focus-visible {
+  outline: 2px solid #9b8ec4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip to content */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: #1a1a2e;
+  color: #FAF9F6;
+  border-radius: 0 0 8px 8px;
+  font-size: 0.875rem;
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e8e8ec;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a5a;
+}
+
+/* Card group hover dimming */
+.card-group:hover > .card-item {
+  opacity: 0.5;
+}
+
+.card-group:hover > .card-item:hover {
+  opacity: 1;
+}
+
+.card-item {
+  transition: opacity 0.3s ease;
+}
+
+.card-group > .card-item + .card-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  padding-top: 1rem;
+}
+
+/* Prismatic ASCII helix */
+@keyframes prismatic-shift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 200%; }
+}
+
+.ascii-helix-text {
+  background: linear-gradient(
+    180deg,
+    #e8b4cb,
+    #c4b5e0,
+    #a8d8ea,
+    #b8e6d0,
+    #e8b4cb
+  );
+  background-size: 100% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: prismatic-shift 8s linear infinite;
+}
+
+/* Sticky mobile section header */
+@media (max-width: 1079px) {
+  .sticky-section-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(250, 249, 246, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 16px 0;
+    margin: 0 -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 }
