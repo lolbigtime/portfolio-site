@@ -18,7 +18,7 @@ export default function SocialIcons() {
     },
     {
       label: "LinkedIn",
-      href: "https://linkedin.com/in/tai-wong",
+      href: "https://www.linkedin.com/in/tai-wong-491b46270/",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"

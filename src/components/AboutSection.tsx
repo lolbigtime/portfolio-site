@@ -11,7 +11,7 @@ export default function AboutSection() {
           I&apos;m a Computer Science and Bioengineering student at the
           University of Illinois Urbana-Champaign, passionate about using AI
           systems to accelerate scientific discovery. I&apos;m drawn to the
-          intersection of machine learning and biology — where computational
+          intersection of machine learning and biology, where computational
           tools can unlock insights that would be impossible to find by hand.
         </p>
         <p>
