@@ -6,7 +6,7 @@
   "technologies": ["Python", "NCBI EDirect", "PubMed", "MeSH"],
   "blog": {
     "subtitle": "The wrapper I wrote because I got tired of shell pipes",
-    "date": "Winter 2024",
+    "date": "February 2026",
     "readTime": "4 min read",
     "sections": [
       {

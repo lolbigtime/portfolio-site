@@ -1,11 +1,11 @@
 {
   "title": "SkyHub",
   "description": "Full-stack Hypixel SkyBlock stats platform (successor to SkyStats, 15,000+ MAU): 42-endpoint FastAPI backend with PostgreSQL and background workers for leaderboard ranking and networth calculation across 40+ item upgrade types. Self-hosted on a Mac Mini via Docker Compose with Cloudflare Zero Trust tunnel, launchd auto-start, and automated 6-hour PostgreSQL backups.",
-  "url": "https://github.com/lolbigtime",
+  "url": "https://github.com/lolbigtime/SkyHub",
   "technologies": ["FastAPI", "PostgreSQL", "Docker", "Cloudflare Tunnel", "SwiftUI"],
   "blog": {
     "subtitle": "The second time I rewrote a stats app for fifteen thousand people",
-    "date": "August 2025",
+    "date": "March 2026",
     "readTime": "6 min read",
     "sections": [
       {

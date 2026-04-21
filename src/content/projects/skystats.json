@@ -1,11 +1,11 @@
 {
   "title": "SkyStats",
   "description": "Hypixel SkyBlock stats tracker with 15,000+ MAU, built and maintained over three years. Rewrote the iOS client to SwiftUI and migrated the backend to MongoDB, reducing latency by 20%.",
-  "url": "https://github.com/lolbigtime",
+  "url": "https://github.com/lolbigtime/SkyStats",
   "technologies": ["SwiftUI", "MongoDB", "Python"],
   "blog": {
     "subtitle": "The app I learned everything on",
-    "date": "2022 to 2025",
+    "date": "October 2022 to March 2023",
     "readTime": "4 min read",
     "sections": [
       {

@@ -6,7 +6,7 @@
   "technologies": ["Python", "PyTorch", "BiomedBERT", "BioLORD", "HuggingFace Transformers"],
   "blog": {
     "subtitle": "Teaching a model the shape of biomedical vocabulary",
-    "date": "September 2025",
+    "date": "February to April 2026",
     "readTime": "5 min read",
     "sections": [
       {

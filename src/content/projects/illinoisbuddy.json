@@ -1,11 +1,11 @@
 {
   "title": "IllinoisBuddy",
   "description": "UIUC course planning web app aggregating Rate My Professor ratings, GPA distributions (Wade Fagen dataset), and Course Explorer API data. Flask + Google OAuth backend with React/TypeScript drag-and-drop multi-semester planner, GPA visualization, and schedule conflict detection. Migrating to PostgreSQL + FastAPI for production.",
-  "url": "https://github.com/lolbigtime",
+  "url": "https://github.com/lolbigtime/UIUC-course-website",
   "technologies": ["Flask", "React", "TypeScript", "Tailwind", "SQLite", "PostgreSQL"],
   "blog": {
     "subtitle": "A course planner that actually trusts the numbers",
-    "date": "Spring 2025",
+    "date": "December 2025 to January 2026",
     "readTime": "5 min read",
     "sections": [
       {
