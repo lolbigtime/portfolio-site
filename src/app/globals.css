@@ -8,14 +8,18 @@ body {
   color: #4a4a5a;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling — scoped to root so our page-transition scroll
+   resets can override with scroll-behavior:auto without fighting CSS. */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
 
+html.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html.smooth-scroll {
     scroll-behavior: auto;
   }
   .motion-reduce-hidden {

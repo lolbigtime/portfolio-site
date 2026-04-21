@@ -6,33 +6,47 @@
   "blog": {
     "subtitle": "The app I learned everything on",
     "date": "October 2022 to March 2023",
-    "readTime": "4 min read",
+    "readTime": "6 min read",
     "sections": [
       {
         "heading": "The three year app",
         "paragraphs": [
-          "I built SkyStats when I was fifteen. By the time I retired it into SkyHub it had fifteen thousand people checking it every month. I did not plan for that. I did not market it. It grew because one Discord community posted a screenshot and the rest happened on its own.",
-          "Everything I know about running a real service for real users I learned from being woken up by this app."
+          "I built SkyStats when I was fifteen. By the time I retired it into SkyHub it had fifteen thousand people checking it every month. I did not plan for that. One Discord post carried it.",
+          "Everything I know about running a service for real users I learned from being woken up by this app."
+        ]
+      },
+      {
+        "heading": "Six weeks to ship the core",
+        "paragraphs": [
+          "Inventory, ender chest, personal vault, collections, minions, and skills all landed in one week in late November 2022. Each view was a controller, a view model, and a SwiftUI detail screen. The commit history reads like a checklist.",
+          "December was sub-controllers: item drill-down, pet detail, equipment detail. Each list cell owned its own fetching, its own state, its own refresh, so the parent view did not have to know. That pattern is the reason the codebase could add features faster than it should have."
+        ]
+      },
+      {
+        "heading": "The bazaar cost me a month",
+        "paragraphs": [
+          "Bazaar shipped Christmas week of 2022 and then became the entire next month of work. Buy-and-sell charts landed January 17. The portfolio tab where users tracked their own holdings landed January 27.",
+          "The charts were written from scratch over CoreGraphics instead of a charting library. That was wrong. I should have pulled in a dependency. I lost a week writing a horizontally zoomable candlestick view that does exactly what five libraries already do, badly."
+        ]
+      },
+      {
+        "heading": "The auction house, and the one feature that mattered",
+        "paragraphs": [
+          "Three weeks in February for the auction module. Auction home screen, individual auction, auction item search, bid tracking, auction notifications.",
+          "The February 21 commit called auction notify is the feature that pushed me past three thousand daily actives, because no other Hypixel app was doing it. Notifications needed a local cache of watched items, a server-side fan-out that compared prices against the user watchlist on a schedule, and background fetches on iOS to wake the app up and deliver a local notification when a threshold hit."
         ]
       },
       {
         "heading": "The rewrite nobody saw",
         "paragraphs": [
-          "Midway through its life I rewrote the iOS client from UIKit into SwiftUI and moved the backend off a Python monolith onto a MongoDB-backed service. The visible change was a cleaner UI. The invisible change was a twenty percent drop in average request latency.",
-          "The rewrite shipped in the same update as a cosmetic redesign so that the speed gain would be attributed to the new look. This is a dirty trick and I would do it again."
-        ]
-      },
-      {
-        "heading": "What I kept, what I threw out",
-        "paragraphs": [
-          "I kept the API scraper. I kept the theme. I threw out the networth code, which had grown into a single thousand-line file that nobody including me could read. SkyHub has the successor to that code and it is under four hundred lines and covered by tests."
+          "Midway through I rewrote the iOS client from UIKit into SwiftUI. Same day I moved the backend off a Flask monolith onto a MongoDB-backed service. Visible change: cleaner UI. Invisible change: request latency dropped twenty percent because the new backend cached profile blobs and only recomputed networth when the cache was stale.",
+          "I shipped both the rewrite and a cosmetic redesign in the same update so users attributed the speed to the new look. This is a dirty trick and I would do it again."
         ]
       },
       {
         "heading": "Why I retired it",
         "paragraphs": [
-          "A product that cannot evolve is a product that is slowly dying. SkyStats could not evolve. The data model said no.",
-          "SkyHub was not a new idea. It was the same idea on a foundation that does not refuse requests."
+          "The MongoDB document store could not evolve into something relational without a full migration. I did the migration. It is called SkyHub now. Same idea, different foundation."
         ]
       }
     ]

@@ -7,33 +7,46 @@
   "blog": {
     "subtitle": "Teaching a model the shape of biomedical vocabulary",
     "date": "February to April 2026",
-    "readTime": "5 min read",
+    "readTime": "7 min read",
     "sections": [
       {
-        "heading": "Why MeSH",
+        "heading": "Why MeSH is the hard case",
         "paragraphs": [
-          "MeSH is the controlled vocabulary that PubMed uses to tag every paper. If you can map a messy user query to the right MeSH term, you can run a search that actually respects meaning instead of the shape of the letters.",
-          "But MeSH is huge and most of it is rare. A zero-shot model will happily suggest a term that is adjacent and wrong. I wanted the free-text side of biomedical search to feel less like guessing and more like talking to a librarian."
+          "MeSH is the controlled vocabulary PubMed tags every paper with. Around thirty thousand descriptors organized into a tree. Most are rare. The head of the distribution is dominated by Neoplasms and Humans, and everything in the humanities or history branches sees a handful of papers a year.",
+          "A zero-shot encoder will confidently map adjacent concepts to a similar-sounding but wrong MeSH term, and the error is subtle enough that a reviewer will not catch it. I wanted a model that respected the hierarchy."
         ]
       },
       {
-        "heading": "Two stages, two jobs",
+        "heading": "Stage one is a cheap filter",
         "paragraphs": [
-          "Stage one is a fine-tuned BiomedBERT classifier across the 15 top-level MeSH branches. Macro recall lands at 95.8 percent. This is not the interesting model. It is the cheap filter that makes the expensive model tractable.",
-          "Stage two is a BioLORD dual encoder trained with InfoNCE and hard negatives on a million query-term pairs. Queries go in one tower. MeSH terms go in the other. At inference it is a cosine similarity search inside the branch the first stage chose. Recall at 50 is 2.2 times zero-shot. The gap is larger on the rare tail."
+          "Papers can tag multiple branches, so stage one is a multi-label classifier, not a multiclass one. Fifteen sigmoid outputs with binary cross-entropy, BiomedBERT as the backbone.",
+          "Class imbalance is severe. The loss is reweighted by inverse frequency so the Humanities branch gets as much gradient as the Neoplasms branch. Macro recall across 15 branches lands at 95.8 percent at a threshold tuned for recall first.",
+          "The only reason this stage exists is to narrow the candidate set for stage two from thirty thousand terms to a few thousand per paper. That is what makes stage two tractable."
         ]
       },
       {
-        "heading": "Training on a laptop budget",
+        "heading": "Stage two is a dual encoder",
         "paragraphs": [
-          "I trained on Colab. Every researcher who claims this is fine is lying. The session drops. The runtime dies. The dataset is too big to hold in memory.",
-          "I wrote a streaming MeSH XML parser and a checkpoint-every-N-batches loop so I could lose an hour of progress instead of ten hours. The unglamorous infrastructure was most of the work."
+          "Query tower: BiomedBERT. Term tower: BioLORD, a model already pretrained on biomedical concept labels. I froze BioLORD for the first few epochs then unfroze so both towers could co-adapt.",
+          "Loss is InfoNCE over one million query-term pairs at temperature 0.05. The real trick is hard negative mining: every N batches, pull the top-K false positives from a nearest-neighbor lookup over the descriptor cache and add them as explicit negatives on the next step.",
+          "The descriptor cache is a flat tensor of every term vector, rebuilt after N batches. Bilateral gradients so both towers keep learning.",
+          "Recall at 50 on held-out papers: 2.2 times zero-shot. The gap is largest on the rare tail, which is the part I was actually optimizing for."
         ]
       },
       {
-        "heading": "Where it falls over",
+        "heading": "Training infrastructure was most of the work",
         "paragraphs": [
-          "The dual encoder is good at terms it has seen variants of. It is not yet good at terms that exist only in their official MeSH phrasing. Hard negative mining helps. Synthetic paraphrase data from an LLM helps more and I have not shipped that yet."
+          "I trained on Colab. Every serious person who has trained on Colab has a folder of recovery scripts, and I have one too.",
+          "The streaming MeSH XML parser reads the full release file without loading it into memory. Each descriptor is yielded as it parses and written to Parquet for the training pipeline. This is the commit titled mesh parsing done on day two of the project, and it is load-bearing for everything after.",
+          "Checkpointing writes optimizer state to Google Drive every N batches, not just weights. Resumption picks up mid-epoch. One Colab disconnect costs roughly forty minutes of compute instead of ten hours."
+        ]
+      },
+      {
+        "heading": "Evaluation is the receipt",
+        "paragraphs": [
+          "The last commit before I called the project done is an evaluation notebook comparing BM25, frozen BioLORD, and the fine-tuned dual encoder on the same held-out set. It is the proof that the work mattered.",
+          "BM25 loses on everything. Frozen BioLORD is competitive on common branches and collapses on the tail. Fine-tuned BioLORD wins everywhere and wins biggest on the rare tail.",
+          "That is the model that gets loaded in production."
         ]
       }
     ]

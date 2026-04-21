@@ -7,26 +7,42 @@
   "blog": {
     "subtitle": "The wrapper I wrote because I got tired of shell pipes",
     "date": "February 2026",
-    "readTime": "4 min read",
+    "readTime": "5 min read",
     "sections": [
       {
-        "heading": "EDirect is great and also bad",
+        "heading": "EDirect is the gold standard and also the problem",
         "paragraphs": [
-          "NCBI ships EDirect, a set of command line tools that let you query PubMed and the rest of their databases. It is the gold standard and it is also a pipeline of shell commands that you chain with pipes and that break in silence if you do anything remotely concurrent.",
-          "I wanted a Python API. PyEntrez is that. A thin wrapper around esearch, efetch, elink, and einfo that returns real objects and fails loudly."
+          "NCBI ships EDirect, a set of command line tools that wrap the E-utilities API. esearch, efetch, elink, einfo, and a few others, chained together with shell pipes.",
+          "In a notebook or any Python script that wants to do anything concurrent, that pipe model is a land mine. Subprocesses block. Broken pipes disappear into silence. Non-zero exits are trivially lost if you are not explicitly watching for them.",
+          "PyEntrez started as a utility class and turned into the only way I query NCBI now."
         ]
       },
       {
-        "heading": "What it does out of the box",
+        "heading": "Subprocesses, not pipes",
         "paragraphs": [
-          "Search PubMed with a plain string or a structured MeSH query. Fetch full records. Follow cross-database links, for example from a gene to the papers that discuss it. Pull citation counts.",
-          "All of it is typed. All of it can be parallelized with a batch worker that respects NCBI rate limits, because NCBI will rate limit you and it is embarrassing to get a letter about it."
+          "Each EDirect tool is invoked separately via subprocess.Popen. The output of one is read into Python, parsed, and passed to the next tool as stdin. That way I can catch non-zero exits, parse structured errors, and raise Python exceptions with the actual NCBI response attached.",
+          "Jupyter was still hanging. The fix that shipped on April 17 moved the subprocess IO onto a background thread. The Jupyter event loop was blocking on subprocess stdout reads; threading unblocks it.",
+          "If a call fails, it raises. That is what I meant by fails loudly."
+        ]
+      },
+      {
+        "heading": "Rate limits, because NCBI will notice",
+        "paragraphs": [
+          "NCBI allows three requests per second unauthenticated, ten with an API key. Exceed that and you get email from an actual human at NCBI, which is a uniquely bad feeling.",
+          "The batch worker uses a token-bucket limiter shared across threads. The bucket refills at the rate NCBI permits, and any worker trying to spend a token without one blocks until one is available. No retries, no backoff, just wait your turn."
+        ]
+      },
+      {
+        "heading": "Parsing PMC",
+        "paragraphs": [
+          "The April 18 parser shipped because I needed to bulk-download the Open Access subset. NCBI serves these as articleset XML files, up to a hundred articles inside one root element.",
+          "A naive XML parser loads the whole file. Instead I used lxml iterparse to walk the tree, split on the direct-child element boundary, and wrote each article to its own file. That lets the next stage fan out across processes instead of walking the file serially."
         ]
       },
       {
         "heading": "Why it stayed small",
         "paragraphs": [
-          "I kept rejecting features. A library that tries to be a search engine on top of an API is a library that will break every time the API changes. PyEntrez only exposes what EDirect exposes. If you want something fancier, build it on top.",
+          "I kept rejecting features. A library that tries to be a search engine on top of an API is a library that will break every time the API changes. PyEntrez exposes only what EDirect exposes. If you want something fancier, build it on top.",
           "The core stays boring and boring is why it still works."
         ]
       }

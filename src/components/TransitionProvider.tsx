@@ -90,6 +90,12 @@ export default function TransitionProvider({
       });
 
       addTimer(TRANSITION_MS, () => {
+        // Viewport is fully covered. Reset scroll for forward navigation
+        // *before* the route change so the destination renders at the top,
+        // not after, which is what produced the visible scroll-up.
+        if (normPath(href) !== "/") {
+          jumpScroll(0);
+        }
         router.push(href, { scroll: false });
       });
     },
@@ -104,9 +110,10 @@ export default function TransitionProvider({
 
     clearTimers();
 
-    // Blog pages always open at the top; only the home page restores scroll.
-    const savedY = target === "/" ? scrollMapRef.current["/"] ?? 0 : 0;
-    jumpScroll(savedY);
+    // Going back to home: restore the scroll position we left from.
+    if (target === "/") {
+      jumpScroll(scrollMapRef.current["/"] ?? 0);
+    }
 
     addTimer(SETTLE_MS, () => {
       setCovered(false);

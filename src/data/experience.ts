@@ -11,15 +11,6 @@ export const experiences: Experience[] = [
     technologies: ["Python", "LangGraph", "Neo4j", "LLMs", "Multi-Agent Systems"],
   },
   {
-    title: "Deep Learning Research Intern",
-    company: "COOL Lab, OHSU",
-    url: "https://www.ohsu.edu",
-    range: "2023 — 2025",
-    description:
-      "Developed CNN and U-Net models to analyze OCTA scans for dilated vessel detection as a biomarker of diabetic retinopathy. Improved segmentation through hyperparameter tuning and data augmentation, evaluating with AUC, IoU, and sensitivity metrics.",
-    technologies: ["Python", "PyTorch", "CNN", "U-Net", "Computer Vision", "MATLAB"],
-  },
-  {
     title: "Research Assistant",
     company: "Mattis Lab, UCSF",
     url: "https://www.ucsf.edu",
@@ -27,5 +18,14 @@ export const experiences: Experience[] = [
     description:
       "Developing an NLP pipeline using PubMedBERT and local LLMs to extract structured cell differentiation protocols from ~300,000 PubMed papers, building a unified database linking source cells, growth factors, and experimental conditions for stem cell research. Also designed bioinformatics pipelines predicting miRNA-mRNA interactions related to NAFLD, contributing to a published paper on regulatory networks in metabolic disease.",
     technologies: ["Python", "PubMedBERT", "NLP", "Bioinformatics", "PostgreSQL"],
+  },
+  {
+    title: "Deep Learning Research Intern",
+    company: "COOL Lab, OHSU",
+    url: "https://www.ohsu.edu",
+    range: "2023 — 2025",
+    description:
+      "Developed CNN and U-Net models to analyze OCTA scans for dilated vessel detection as a biomarker of diabetic retinopathy. Improved segmentation through hyperparameter tuning and data augmentation, evaluating with AUC, IoU, and sensitivity metrics.",
+    technologies: ["Python", "PyTorch", "CNN", "U-Net", "Computer Vision", "MATLAB"],
   },
 ];

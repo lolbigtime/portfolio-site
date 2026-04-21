@@ -11,29 +11,37 @@
       {
         "heading": "What UIUC does not tell you",
         "paragraphs": [
-          "Course Explorer lists every class at UIUC. It does not tell you the GPA distribution. It does not tell you that the professor teaching section B is not the professor teaching section A. It does not tell you that a requirement got swapped out last semester. Students find this out by asking around.",
-          "I built IllinoisBuddy to pool what students already know and put it on one screen."
+          "Course Explorer is the official UIUC system. It lists every class, every section, every seat count. It does not tell you the GPA distribution. It does not tell you that section A has a different instructor than section B. It does not tell you that the prereq you think you have was swapped for a new course last semester.",
+          "Students already share this in group chats. IllinoisBuddy pools it into one screen."
         ]
       },
       {
-        "heading": "Three data sources, one join",
+        "heading": "Three data sources joined on one key",
         "paragraphs": [
-          "Wade Fagen-Ulmschneider publishes the GPA dataset every semester, down to the section. Rate My Professor has the qualitative side. Course Explorer is the source of truth for what is actually being offered.",
-          "I joined them. That is most of what the site is. The rest is interface."
+          "Course Explorer exposes an XML API. The structure is deep but stable. I wrote a client that crawls subject, then course, then section, and caches the result in SQLite so I do not hammer the endpoint every time a student reloads.",
+          "Wade Fagen-Ulmschneider publishes a CSV of grade distributions per section. I join it on course ID and section letter. The merge key is neither obvious nor documented, but trial and error solved it.",
+          "Rate My Professor has no official API. The scraper I wrote on December 23 was deleted the same day because I was shipping the sample output to the repo and decided I did not want to host someone elses review data as a versioned artifact. The scraper lives only server-side now, and review text is pulled live."
         ]
       },
       {
-        "heading": "Why it needs a real backend",
+        "heading": "The planner is a backend",
         "paragraphs": [
-          "A drag-and-drop multi-semester planner is easy. A drag-and-drop planner that respects prerequisites, enforces credit hour limits, warns on time conflicts, and persists across sessions is a backend.",
-          "I wrote the first version in Flask with SQLite and Google OAuth because I wanted to ship. The second version is moving to FastAPI and Postgres because the first version is starting to crack under its own weight and that is the signal to rebuild."
+          "A drag-and-drop multi-semester planner is cheap on the frontend. What makes it real is the backend: prerequisites satisfied, credit hours under the term cap, time conflicts flagged, and the plan persisted across sessions so a student can come back in March and still see their spring draft.",
+          "First version was Flask with SQLite and Google OAuth because I wanted to ship fast. The in-progress second version is FastAPI and Postgres because the first version is cracking under its own weight, and that is the signal to rebuild."
+        ]
+      },
+      {
+        "heading": "The branch names are the story",
+        "paragraphs": [
+          "The commit log in January shows three branches merging in sequence: grade-disparities on January 3, then server on January 15, then course-explorer the same day. That is the whole system landing in three pieces in two weeks.",
+          "January 25 is the big frontend commit and the database population. That is the day the site stopped being a local toy and became a real thing."
         ]
       },
       {
         "heading": "Where this goes",
         "paragraphs": [
-          "The interesting version of this tool is the one that plans the whole degree, not the semester. That is the version I am writing now.",
-          "It needs every requirement from every catalog, machine readable. UIUC does not publish that. I am scraping it."
+          "The interesting version of this tool plans the whole degree, not the semester. That is the version I am writing now.",
+          "It needs every graduation requirement from every catalog, machine readable. UIUC does not publish that. I am scraping it."
         ]
       }
     ]

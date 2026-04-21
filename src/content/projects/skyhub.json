@@ -6,36 +6,44 @@
   "blog": {
     "subtitle": "The second time I rewrote a stats app for fifteen thousand people",
     "date": "March 2026",
-    "readTime": "6 min read",
+    "readTime": "7 min read",
     "sections": [
       {
         "heading": "Why a second app",
         "paragraphs": [
-          "SkyStats, the original version, ran for three years. It was a SwiftUI shell on top of a MongoDB document store. It worked.",
-          "The problem was that every feature I wanted next was a query I could not write, because the shape of the data was a wall of nested dictionaries and nothing was relational.",
-          "SkyHub is the same product, thrown into a proper backend. FastAPI. PostgreSQL. Forty-two endpoints. Background workers doing the heavy lifting."
+          "SkyStats ran for three years on MongoDB. The document model was a wall of nested dictionaries. Every feature I wanted required either a full scan or a new index, and both scaled badly for leaderboards.",
+          "SkyHub started with a FastAPI and PostgreSQL backend that treated the problem as relational from line one. Player is a row, profile is a row, item is a row, skill is a row. Joins are cheap and the global leaderboard is a single query.",
+          "The first backend commit message outlined seven phases. That outline is what made the twelve-day build possible."
         ]
       },
       {
-        "heading": "Networth is not a view, it is a pipeline",
+        "heading": "Networth is a pipeline, not a view",
         "paragraphs": [
-          "Hypixel SkyBlock has more than forty item upgrade types. Reforges. Hot potato books. Master stars. Art of war. The total networth calculation has to walk all of them, respect stacking, and handle edge cases like unstackable enchanted books and bazaar price gaps.",
-          "I moved this off the request path entirely. A background worker precomputes networth on a cadence and the endpoint just returns the cached number.",
-          "That change is the reason the app feels instant. The feature did not get faster. The slow part moved somewhere you cannot see."
+          "Hypixel SkyBlock has more than forty item upgrade types. Reforges, hot potato books, master stars, art of war scrolls, recombobulators. The networth calculation walks all of them, stacks correctly for unstackable books, and prices each upgrade against a rolling bazaar window.",
+          "On the request path that takes multiple seconds. I moved it off. A background worker runs the calculation on a cadence and writes to a cached column on the profile row. The endpoint reads that column.",
+          "The feature did not get faster. The slow part moved somewhere you cannot see."
+        ]
+      },
+      {
+        "heading": "The long tail of game data",
+        "paragraphs": [
+          "March 20 to March 22 was three straight days of game-data work. Hypixel rank became a typed enum so every downstream view could switch on it safely. Pet max levels had to be dynamic because different pet tiers cap at different levels. Skills have static caps for most trees but farming and taming are uncapped past certain perks, so skill caps became dynamic too, and overflow XP became its own column.",
+          "Bank balance was at member.profile.bank_account, not on the top-level profile blob. One of the commits is literally just Fix bank balance.",
+          "Then leather armor colors. Hypixel stores dye colors inside the NBT of each item as a packed integer at tag.display.color. I wrote a parser that pulls that value and casts it into a hex string. Animated dyes are a separate concept that cycle colors on a timer and had to be handled client-side."
         ]
       },
       {
         "heading": "Hosting, told honestly",
         "paragraphs": [
-          "The backend runs on a Mac Mini on my desk. Docker Compose with the FastAPI container, the Postgres container, and a reverse proxy via a Cloudflare Zero Trust tunnel. There is no exposed port. There is no public IP. Cloudflare is the only thing that knows where my server actually lives.",
-          "launchd brings it back up on reboot. Postgres dumps itself to disk every six hours and cycles through seven snapshots. A power outage in my apartment would cost me six hours of new user records and nothing else."
+          "The backend runs on a Mac Mini on my desk. Docker Compose orchestrates the FastAPI container and the Postgres container. A Cloudflare Zero Trust tunnel carries public traffic to 127.0.0.1 without exposing a port to the internet.",
+          "launchd brings the stack up on boot with a LaunchDaemon plist. A cron inside the postgres container runs pg_dump every six hours and rotates through seven snapshots. If the Mac Mini loses power, the worst case is six hours of new user records."
         ]
       },
       {
-        "heading": "Lessons from fifteen thousand strangers",
+        "heading": "The 502 that taught me retry",
         "paragraphs": [
-          "Users do not care about your architecture. They care whether the leaderboard loads before they tab away. Anything above four hundred milliseconds might as well not exist.",
-          "The support inbox is the real product surface. Most of my shipped features started as someone being annoyed at me in email."
+          "At the end of March there was a bug where refreshing a player profile returned a 502 on roughly one call in ten. The cause was a race between the Hypixel API response and the local cache write, and the client saw the mid-state.",
+          "The fix was a small retry loop around the fetch call specifically, not the whole request. It buried the entire class of failure, and it is the only place I added retry logic on purpose."
         ]
       }
     ]
