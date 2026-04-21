@@ -10,8 +10,6 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-type Phase = "idle" | "expanding" | "fading";
-
 interface TransitionContextValue {
   navigate: (x: number, y: number, href: string) => void;
 }
@@ -23,8 +21,10 @@ const TransitionContext = createContext<TransitionContextValue>({
 export const useTransitionNavigate = () =>
   useContext(TransitionContext).navigate;
 
-const EXPAND_MS = 450;
-const FADE_MS = 320;
+const TRANSITION_MS = 450;
+const SETTLE_MS = 40;
+
+const normPath = (p: string) => (p.endsWith("/") ? p : p + "/");
 
 export default function TransitionProvider({
   children,
@@ -34,27 +34,41 @@ export default function TransitionProvider({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [expanded, setExpanded] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [covered, setCovered] = useState(false);
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const [radius, setRadius] = useState(0);
+
   const targetRef = useRef<string | null>(null);
-  const navTimerRef = useRef<number | null>(null);
-  const fadeTimerRef = useRef<number | null>(null);
-  const idleTimerRef = useRef<number | null>(null);
+  const navigatingRef = useRef(false);
+  const scrollMapRef = useRef<Record<string, number>>({});
+  const timersRef = useRef<number[]>([]);
+
+  const addTimer = (ms: number, fn: () => void) => {
+    const id = window.setTimeout(fn, ms);
+    timersRef.current.push(id);
+  };
 
   const clearTimers = () => {
-    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-    if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
-    navTimerRef.current = null;
-    fadeTimerRef.current = null;
-    idleTimerRef.current = null;
+    timersRef.current.forEach((id) => window.clearTimeout(id));
+    timersRef.current = [];
+  };
+
+  const jumpScroll = (y: number) => {
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+    window.scrollTo(0, y);
+    requestAnimationFrame(() => {
+      html.style.scrollBehavior = prev;
+    });
   };
 
   const navigate = useCallback(
     (x: number, y: number, href: string) => {
-      if (phase !== "idle") return;
+      if (navigatingRef.current) return;
+      navigatingRef.current = true;
+      clearTimers();
 
       const r =
         Math.hypot(
@@ -62,49 +76,53 @@ export default function TransitionProvider({
           Math.max(y, window.innerHeight - y)
         ) + 80;
 
-      clearTimers();
-      targetRef.current = href;
+      scrollMapRef.current[normPath(window.location.pathname)] =
+        window.scrollY;
+
+      targetRef.current = normPath(href);
       setOrigin({ x, y });
       setRadius(r);
-      setExpanded(false);
-      setPhase("expanding");
+      setCovered(false);
+      setShowOverlay(true);
 
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => setExpanded(true));
+        requestAnimationFrame(() => setCovered(true));
       });
 
-      navTimerRef.current = window.setTimeout(() => {
-        router.push(href);
-      }, EXPAND_MS - 40);
+      addTimer(TRANSITION_MS, () => {
+        router.push(href, { scroll: false });
+      });
     },
-    [phase, router]
+    [router]
   );
 
   useEffect(() => {
-    if (phase !== "expanding") return;
+    if (!navigatingRef.current) return;
     const target = targetRef.current;
     if (!target) return;
-    const norm = (s: string) => (s.endsWith("/") ? s : s + "/");
-    if (norm(pathname) !== norm(target)) return;
+    if (normPath(pathname) !== target) return;
 
-    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-    fadeTimerRef.current = window.setTimeout(() => {
-      setPhase("fading");
-      idleTimerRef.current = window.setTimeout(() => {
-        setPhase("idle");
-        setExpanded(false);
+    clearTimers();
+
+    // Blog pages always open at the top; only the home page restores scroll.
+    const savedY = target === "/" ? scrollMapRef.current["/"] ?? 0 : 0;
+    jumpScroll(savedY);
+
+    addTimer(SETTLE_MS, () => {
+      setCovered(false);
+      addTimer(TRANSITION_MS + 40, () => {
+        setShowOverlay(false);
+        navigatingRef.current = false;
         targetRef.current = null;
-      }, FADE_MS + 40);
-    }, 60);
-  }, [pathname, phase]);
+      });
+    });
+  }, [pathname]);
 
   useEffect(() => () => clearTimers(), []);
 
-  const showOverlay = phase !== "idle";
-  const clip = expanded
+  const clip = covered
     ? `circle(${radius}px at ${origin.x}px ${origin.y}px)`
     : `circle(0px at ${origin.x}px ${origin.y}px)`;
-  const opacity = phase === "fading" ? 0 : 1;
 
   return (
     <TransitionContext.Provider value={{ navigate }}>
@@ -117,9 +135,7 @@ export default function TransitionProvider({
             backgroundColor: "#FAF9F6",
             clipPath: clip,
             WebkitClipPath: clip,
-            opacity,
-            transition: `clip-path ${EXPAND_MS}ms cubic-bezier(0.77, 0, 0.175, 1), -webkit-clip-path ${EXPAND_MS}ms cubic-bezier(0.77, 0, 0.175, 1), opacity ${FADE_MS}ms ease`,
-            pointerEvents: phase === "fading" ? "none" : "auto",
+            transition: `clip-path ${TRANSITION_MS}ms cubic-bezier(0.77, 0, 0.175, 1), -webkit-clip-path ${TRANSITION_MS}ms cubic-bezier(0.77, 0, 0.175, 1)`,
           }}
         />
       )}
