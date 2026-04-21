@@ -11,7 +11,13 @@ export default function BlogPage({ project }: { project: Project }) {
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
     e.preventDefault();
-    navigate(e.clientX, e.clientY, "/");
+    let { clientX, clientY } = e;
+    if (!clientX && !clientY) {
+      const r = (e.currentTarget as HTMLAnchorElement).getBoundingClientRect();
+      clientX = r.left + r.width / 2;
+      clientY = r.top + r.height / 2;
+    }
+    navigate(clientX, clientY, "/");
   };
 
   return (
@@ -21,6 +27,7 @@ export default function BlogPage({ project }: { project: Project }) {
           href="/"
           onClick={handleBack}
           className="mb-14 inline-flex items-center gap-2 text-sm text-graphite hover:text-ink transition-colors"
+          style={{ touchAction: "manipulation" }}
         >
           <svg
             width="14"

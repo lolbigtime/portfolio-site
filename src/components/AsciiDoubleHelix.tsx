@@ -26,6 +26,13 @@ export default function AsciiDoubleHelix() {
   }, []);
 
   useEffect(() => {
+    // The helix is hidden below lg via `hidden lg:flex` on its wrapper.
+    // Skip the rAF loop on narrower viewports so mobile doesn't pay for
+    // a per-frame text rebuild nobody ever sees.
+    if (typeof window !== "undefined" && !window.matchMedia("(min-width: 1024px)").matches) {
+      return;
+    }
+
     let offset = 0;
     let animId: number;
 

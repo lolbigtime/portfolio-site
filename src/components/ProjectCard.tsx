@@ -14,7 +14,13 @@ export default function ProjectCard({ project }: { project: Project }) {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
     e.preventDefault();
-    navigate(e.clientX, e.clientY, href);
+    let { clientX, clientY } = e;
+    if (!clientX && !clientY) {
+      const r = (e.currentTarget as HTMLAnchorElement).getBoundingClientRect();
+      clientX = r.left + r.width / 2;
+      clientY = r.top + r.height / 2;
+    }
+    navigate(clientX, clientY, href);
   };
 
   return (
@@ -24,6 +30,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         onClick={handleClick}
         aria-label={`Read about ${project.title}`}
         className="glass-card prismatic-border block p-6 cursor-pointer"
+        style={{ touchAction: "manipulation" }}
       >
         <div className="flex flex-col gap-4">
           {project.image && (

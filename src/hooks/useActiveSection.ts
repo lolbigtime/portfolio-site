@@ -39,7 +39,10 @@ export function useActiveSection(): [string, (section: string) => void] {
   }, []);
 
   useEffect(() => {
+    let rafPending = false;
+
     const getActiveFromScroll = () => {
+      rafPending = false;
       if (isScrollingRef.current) return;
 
       // If near the bottom, activate the last section
@@ -60,10 +63,18 @@ export function useActiveSection(): [string, (section: string) => void] {
       setActiveSection(current);
     };
 
-    window.addEventListener("scroll", getActiveFromScroll, { passive: true });
+    // Coalesce multiple scroll events into one read per frame so we do
+    // not getBoundingClientRect three times per wheel tick on mobile.
+    const onScroll = () => {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(getActiveFromScroll);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     getActiveFromScroll();
 
-    return () => window.removeEventListener("scroll", getActiveFromScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return [activeSection, handleNavClick];

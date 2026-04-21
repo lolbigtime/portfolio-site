@@ -1,13 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
 export default function PrismaticBackground() {
+  const [canHover, setCanHover] = useState(false);
   const { x, y } = useMousePosition();
+
+  useEffect(() => {
+    // Only render the expensive blurred gradients on devices with a
+    // pointing device at a desktop breakpoint. Blurring 600px blobs on
+    // mobile GPUs is a scroll-killer.
+    const mq = window.matchMedia("(min-width: 1024px) and (hover: hover)");
+    setCanHover(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setCanHover(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  if (!canHover) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {/* Ambient gradient blobs */}
       <div
         className="absolute motion-reduce-hidden"
         style={{
@@ -42,7 +56,6 @@ export default function PrismaticBackground() {
         }}
       />
 
-      {/* Mouse-following spotlight */}
       <div
         className="motion-reduce-hidden"
         style={{
