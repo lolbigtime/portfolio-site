@@ -1,0 +1,35 @@
+{
+  "title": "PyEntrez",
+  "featured": true,
+  "description": "Python wrapper for NCBI's EDirect command-line tools. Provides a programmatic API for searching PubMed and other NCBI databases, fetching records, discovering cross-database links, pulling citation counts, and querying by MeSH terms. Includes batch processing with parallel workers for bulk operations.",
+  "url": "https://github.com/lolbigtime/PyEntrez",
+  "technologies": ["Python", "NCBI EDirect", "PubMed", "MeSH"],
+  "blog": {
+    "subtitle": "The wrapper I wrote because I got tired of shell pipes",
+    "date": "Winter 2024",
+    "readTime": "4 min read",
+    "sections": [
+      {
+        "heading": "EDirect is great and also bad",
+        "paragraphs": [
+          "NCBI ships EDirect, a set of command line tools that let you query PubMed and the rest of their databases. It is the gold standard and it is also a pipeline of shell commands that you chain with pipes and that break in silence if you do anything remotely concurrent.",
+          "I wanted a Python API. PyEntrez is that. A thin wrapper around esearch, efetch, elink, and einfo that returns real objects and fails loudly."
+        ]
+      },
+      {
+        "heading": "What it does out of the box",
+        "paragraphs": [
+          "Search PubMed with a plain string or a structured MeSH query. Fetch full records. Follow cross-database links, for example from a gene to the papers that discuss it. Pull citation counts.",
+          "All of it is typed. All of it can be parallelized with a batch worker that respects NCBI rate limits, because NCBI will rate limit you and it is embarrassing to get a letter about it."
+        ]
+      },
+      {
+        "heading": "Why it stayed small",
+        "paragraphs": [
+          "I kept rejecting features. A library that tries to be a search engine on top of an API is a library that will break every time the API changes. PyEntrez only exposes what EDirect exposes. If you want something fancier, build it on top.",
+          "The core stays boring and boring is why it still works."
+        ]
+      }
+    ]
+  }
+}

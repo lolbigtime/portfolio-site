@@ -1,0 +1,43 @@
+{
+  "title": "SkyHub",
+  "description": "Full-stack Hypixel SkyBlock stats platform (successor to SkyStats, 15,000+ MAU): 42-endpoint FastAPI backend with PostgreSQL and background workers for leaderboard ranking and networth calculation across 40+ item upgrade types. Self-hosted on a Mac Mini via Docker Compose with Cloudflare Zero Trust tunnel, launchd auto-start, and automated 6-hour PostgreSQL backups.",
+  "url": "https://github.com/lolbigtime",
+  "technologies": ["FastAPI", "PostgreSQL", "Docker", "Cloudflare Tunnel", "SwiftUI"],
+  "blog": {
+    "subtitle": "The second time I rewrote a stats app for fifteen thousand people",
+    "date": "August 2025",
+    "readTime": "6 min read",
+    "sections": [
+      {
+        "heading": "Why a second app",
+        "paragraphs": [
+          "SkyStats, the original version, ran for three years. It was a SwiftUI shell on top of a MongoDB document store. It worked.",
+          "The problem was that every feature I wanted next was a query I could not write, because the shape of the data was a wall of nested dictionaries and nothing was relational.",
+          "SkyHub is the same product, thrown into a proper backend. FastAPI. PostgreSQL. Forty-two endpoints. Background workers doing the heavy lifting."
+        ]
+      },
+      {
+        "heading": "Networth is not a view, it is a pipeline",
+        "paragraphs": [
+          "Hypixel SkyBlock has more than forty item upgrade types. Reforges. Hot potato books. Master stars. Art of war. The total networth calculation has to walk all of them, respect stacking, and handle edge cases like unstackable enchanted books and bazaar price gaps.",
+          "I moved this off the request path entirely. A background worker precomputes networth on a cadence and the endpoint just returns the cached number.",
+          "That change is the reason the app feels instant. The feature did not get faster. The slow part moved somewhere you cannot see."
+        ]
+      },
+      {
+        "heading": "Hosting, told honestly",
+        "paragraphs": [
+          "The backend runs on a Mac Mini on my desk. Docker Compose with the FastAPI container, the Postgres container, and a reverse proxy via a Cloudflare Zero Trust tunnel. There is no exposed port. There is no public IP. Cloudflare is the only thing that knows where my server actually lives.",
+          "launchd brings it back up on reboot. Postgres dumps itself to disk every six hours and cycles through seven snapshots. A power outage in my apartment would cost me six hours of new user records and nothing else."
+        ]
+      },
+      {
+        "heading": "Lessons from fifteen thousand strangers",
+        "paragraphs": [
+          "Users do not care about your architecture. They care whether the leaderboard loads before they tab away. Anything above four hundred milliseconds might as well not exist.",
+          "The support inbox is the real product surface. Most of my shipped features started as someone being annoyed at me in email."
+        ]
+      }
+    ]
+  }
+}

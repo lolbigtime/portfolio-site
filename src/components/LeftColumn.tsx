@@ -2,7 +2,6 @@
 
 import SectionNav from "./SectionNav";
 import SocialIcons from "./SocialIcons";
-import AsciiDoubleHelix from "./AsciiDoubleHelix";
 
 interface LeftColumnProps {
   activeSection: string;
@@ -11,22 +10,21 @@ interface LeftColumnProps {
 
 export default function LeftColumn({ activeSection, onNavClick }: LeftColumnProps) {
   return (
-    <header className="lg:sticky lg:top-0 lg:flex lg:max-h-screen lg:w-[480px] lg:flex-col lg:justify-between lg:py-24 relative overflow-hidden">
-      {/* Animated ASCII double helix background */}
-      <div
-        className="absolute inset-0 flex items-center justify-end pointer-events-none opacity-70"
-        aria-hidden="true"
-      >
-        <AsciiDoubleHelix />
-      </div>
-
-      <div className="relative z-10">
+    <header className="lg:sticky lg:top-0 lg:flex lg:max-h-screen lg:w-[420px] lg:shrink-0 lg:flex-col lg:justify-between lg:py-24">
+      <div>
         <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">
           Tai Wong
         </h1>
         <h2 className="mt-3 text-lg font-medium text-ink/80">
           CS + BioE @ UIUC
         </h2>
+        <div className="mt-5 w-[200px] h-[200px] sm:w-[250px] sm:h-[250px] rounded-full overflow-hidden">
+          <img
+            src="/profile.png"
+            alt="Tai Wong"
+            className="w-full h-full object-cover object-[60%_15%]"
+          />
+        </div>
         <p className="mt-4 max-w-xs text-graphite leading-relaxed">
           Building at the intersection of AI and biology.
         </p>
@@ -34,7 +32,7 @@ export default function LeftColumn({ activeSection, onNavClick }: LeftColumnProp
           <SectionNav activeSection={activeSection} onNavClick={onNavClick} />
         </div>
       </div>
-      <div className="relative z-10 mt-8 flex flex-col gap-4">
+      <div className="mt-8 flex flex-col gap-4">
         <SocialIcons />
         <a
           href="/resume.pdf"

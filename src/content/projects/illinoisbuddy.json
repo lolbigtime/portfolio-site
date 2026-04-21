@@ -1,0 +1,41 @@
+{
+  "title": "IllinoisBuddy",
+  "description": "UIUC course planning web app aggregating Rate My Professor ratings, GPA distributions (Wade Fagen dataset), and Course Explorer API data. Flask + Google OAuth backend with React/TypeScript drag-and-drop multi-semester planner, GPA visualization, and schedule conflict detection. Migrating to PostgreSQL + FastAPI for production.",
+  "url": "https://github.com/lolbigtime",
+  "technologies": ["Flask", "React", "TypeScript", "Tailwind", "SQLite", "PostgreSQL"],
+  "blog": {
+    "subtitle": "A course planner that actually trusts the numbers",
+    "date": "Spring 2025",
+    "readTime": "5 min read",
+    "sections": [
+      {
+        "heading": "What UIUC does not tell you",
+        "paragraphs": [
+          "Course Explorer lists every class at UIUC. It does not tell you the GPA distribution. It does not tell you that the professor teaching section B is not the professor teaching section A. It does not tell you that a requirement got swapped out last semester. Students find this out by asking around.",
+          "I built IllinoisBuddy to pool what students already know and put it on one screen."
+        ]
+      },
+      {
+        "heading": "Three data sources, one join",
+        "paragraphs": [
+          "Wade Fagen-Ulmschneider publishes the GPA dataset every semester, down to the section. Rate My Professor has the qualitative side. Course Explorer is the source of truth for what is actually being offered.",
+          "I joined them. That is most of what the site is. The rest is interface."
+        ]
+      },
+      {
+        "heading": "Why it needs a real backend",
+        "paragraphs": [
+          "A drag-and-drop multi-semester planner is easy. A drag-and-drop planner that respects prerequisites, enforces credit hour limits, warns on time conflicts, and persists across sessions is a backend.",
+          "I wrote the first version in Flask with SQLite and Google OAuth because I wanted to ship. The second version is moving to FastAPI and Postgres because the first version is starting to crack under its own weight and that is the signal to rebuild."
+        ]
+      },
+      {
+        "heading": "Where this goes",
+        "paragraphs": [
+          "The interesting version of this tool is the one that plans the whole degree, not the semester. That is the version I am writing now.",
+          "It needs every requirement from every catalog, machine readable. UIUC does not publish that. I am scraping it."
+        ]
+      }
+    ]
+  }
+}

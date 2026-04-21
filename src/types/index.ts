@@ -7,6 +7,18 @@ export interface Experience {
   technologies: string[];
 }
 
+export interface BlogSection {
+  heading?: string;
+  paragraphs: string[];
+}
+
+export interface Blog {
+  subtitle?: string;
+  date: string;
+  readTime: string;
+  sections: BlogSection[];
+}
+
 export interface Project {
   title: string;
   description: string;
@@ -14,4 +26,5 @@ export interface Project {
   image?: string;
   technologies: string[];
   featured?: boolean;
+  blog?: Blog;
 }

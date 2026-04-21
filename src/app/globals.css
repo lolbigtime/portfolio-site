@@ -204,6 +204,27 @@ a.prismatic-link:hover {
   animation: prismatic-shift 8s linear infinite;
 }
 
+/* Blog typography */
+.blog-title {
+  font-size: clamp(2.4rem, 5.5vw, 3.25rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.blog-heading {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.blog-body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #2a2a3a;
+}
+
 /* Sticky mobile section header */
 @media (max-width: 1079px) {
   .sticky-section-header {

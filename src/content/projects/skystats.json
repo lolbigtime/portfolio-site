@@ -1,0 +1,40 @@
+{
+  "title": "SkyStats",
+  "description": "Hypixel SkyBlock stats tracker with 15,000+ MAU, built and maintained over three years. Rewrote the iOS client to SwiftUI and migrated the backend to MongoDB, reducing latency by 20%.",
+  "url": "https://github.com/lolbigtime",
+  "technologies": ["SwiftUI", "MongoDB", "Python"],
+  "blog": {
+    "subtitle": "The app I learned everything on",
+    "date": "2022 to 2025",
+    "readTime": "4 min read",
+    "sections": [
+      {
+        "heading": "The three year app",
+        "paragraphs": [
+          "I built SkyStats when I was fifteen. By the time I retired it into SkyHub it had fifteen thousand people checking it every month. I did not plan for that. I did not market it. It grew because one Discord community posted a screenshot and the rest happened on its own.",
+          "Everything I know about running a real service for real users I learned from being woken up by this app."
+        ]
+      },
+      {
+        "heading": "The rewrite nobody saw",
+        "paragraphs": [
+          "Midway through its life I rewrote the iOS client from UIKit into SwiftUI and moved the backend off a Python monolith onto a MongoDB-backed service. The visible change was a cleaner UI. The invisible change was a twenty percent drop in average request latency.",
+          "The rewrite shipped in the same update as a cosmetic redesign so that the speed gain would be attributed to the new look. This is a dirty trick and I would do it again."
+        ]
+      },
+      {
+        "heading": "What I kept, what I threw out",
+        "paragraphs": [
+          "I kept the API scraper. I kept the theme. I threw out the networth code, which had grown into a single thousand-line file that nobody including me could read. SkyHub has the successor to that code and it is under four hundred lines and covered by tests."
+        ]
+      },
+      {
+        "heading": "Why I retired it",
+        "paragraphs": [
+          "A product that cannot evolve is a product that is slowly dying. SkyStats could not evolve. The data model said no.",
+          "SkyHub was not a new idea. It was the same idea on a foundation that does not refuse requests."
+        ]
+      }
+    ]
+  }
+}

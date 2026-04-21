@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Experience } from "@/types";
 import TechTag from "./TechTag";
 
@@ -9,8 +9,18 @@ const COLLAPSED_HEIGHT = 72; // ~3 lines of text
 export default function ExperienceCard({ experience }: { experience: Experience }) {
   const [expanded, setExpanded] = useState(false);
   const innerRef = useRef<HTMLDivElement>(null);
+  const [fullHeight, setFullHeight] = useState(COLLAPSED_HEIGHT);
 
-  const fullHeight = innerRef.current?.scrollHeight ?? COLLAPSED_HEIGHT;
+  useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    setFullHeight(el.scrollHeight);
+    const observer = new ResizeObserver(() => {
+      setFullHeight(el.scrollHeight);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="card-item">
@@ -36,7 +46,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
               }}
             >
               <div ref={innerRef}>
-                <p className="mt-2 text-sm leading-relaxed text-graphite">
+                <p className="mt-2 pb-1 text-sm leading-relaxed text-graphite">
                   {experience.description}
                 </p>
               </div>

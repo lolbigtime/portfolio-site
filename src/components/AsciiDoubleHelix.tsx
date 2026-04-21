@@ -1,14 +1,29 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const WIDTH = 24;
-const HEIGHT = 55;
-const AMPLITUDE = 8;
+const WIDTH = 14;
+const AMPLITUDE = 5;
 const CENTER = WIDTH / 2;
+const LINE_HEIGHT = 14 * 1.15; // fontSize * lineHeight
 
 export default function AsciiDoubleHelix() {
   const preRef = useRef<HTMLPreElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [rowCount, setRowCount] = useState(55);
+
+  useEffect(() => {
+    function updateRows() {
+      if (containerRef.current) {
+        const h = containerRef.current.clientHeight;
+        setRowCount(Math.ceil(h / LINE_HEIGHT));
+      }
+    }
+
+    updateRows();
+    window.addEventListener("resize", updateRows);
+    return () => window.removeEventListener("resize", updateRows);
+  }, []);
 
   useEffect(() => {
     let offset = 0;
@@ -19,7 +34,7 @@ export default function AsciiDoubleHelix() {
 
       const lines: string[] = [];
 
-      for (let row = 0; row < HEIGHT; row++) {
+      for (let row = 0; row < rowCount; row++) {
         const t = (row + offset) * 0.2;
         const x1 = Math.round(CENTER + AMPLITUDE * Math.sin(t));
         const x2 = Math.round(CENTER - AMPLITUDE * Math.sin(t));
@@ -60,20 +75,22 @@ export default function AsciiDoubleHelix() {
     animId = requestAnimationFrame(render);
 
     return () => cancelAnimationFrame(animId);
-  }, []);
+  }, [rowCount]);
 
   return (
-    <pre
-      ref={preRef}
-      className="ascii-helix-text select-none motion-reduce-hidden"
-      aria-hidden="true"
-      style={{
-        fontFamily: "'Courier New', Courier, monospace",
-        fontSize: "14px",
-        lineHeight: "1.15",
-        whiteSpace: "pre",
-        overflow: "hidden",
-      }}
-    />
+    <div ref={containerRef} className="w-full h-full">
+      <pre
+        ref={preRef}
+        className="ascii-helix-text select-none motion-reduce-hidden"
+        aria-hidden="true"
+        style={{
+          fontFamily: "'Courier New', Courier, monospace",
+          fontSize: "14px",
+          lineHeight: "1.15",
+          whiteSpace: "pre",
+          overflow: "hidden",
+        }}
+      />
+    </div>
   );
 }

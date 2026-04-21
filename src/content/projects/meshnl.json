@@ -1,0 +1,41 @@
+{
+  "title": "MeshNL",
+  "featured": true,
+  "description": "Multi-stage hierarchical MeSH classification trained on the full PubMed baseline. Stage 1 fine-tunes BiomedBERT for 15-branch prediction (macro recall >0.95); Stage 2 fine-tunes a BioLORD dual encoder on 3M paper-term pairs with hard negative mining for fine-grained term retrieval (Recall@50). Engineered a streaming MeSH XML parser and Colab training infrastructure with mid-epoch checkpointing.",
+  "url": "https://github.com/lolbigtime/MeshNL",
+  "technologies": ["Python", "PyTorch", "BiomedBERT", "BioLORD", "HuggingFace Transformers"],
+  "blog": {
+    "subtitle": "Teaching a model the shape of biomedical vocabulary",
+    "date": "September 2025",
+    "readTime": "5 min read",
+    "sections": [
+      {
+        "heading": "Why MeSH",
+        "paragraphs": [
+          "MeSH is the controlled vocabulary that PubMed uses to tag every paper. If you can map a messy user query to the right MeSH term, you can run a search that actually respects meaning instead of the shape of the letters.",
+          "But MeSH is huge and most of it is rare. A zero-shot model will happily suggest a term that is adjacent and wrong. I wanted the free-text side of biomedical search to feel less like guessing and more like talking to a librarian."
+        ]
+      },
+      {
+        "heading": "Two stages, two jobs",
+        "paragraphs": [
+          "Stage one is a fine-tuned BiomedBERT classifier across the 15 top-level MeSH branches. Macro recall lands at 95.8 percent. This is not the interesting model. It is the cheap filter that makes the expensive model tractable.",
+          "Stage two is a BioLORD dual encoder trained with InfoNCE and hard negatives on a million query-term pairs. Queries go in one tower. MeSH terms go in the other. At inference it is a cosine similarity search inside the branch the first stage chose. Recall at 50 is 2.2 times zero-shot. The gap is larger on the rare tail."
+        ]
+      },
+      {
+        "heading": "Training on a laptop budget",
+        "paragraphs": [
+          "I trained on Colab. Every researcher who claims this is fine is lying. The session drops. The runtime dies. The dataset is too big to hold in memory.",
+          "I wrote a streaming MeSH XML parser and a checkpoint-every-N-batches loop so I could lose an hour of progress instead of ten hours. The unglamorous infrastructure was most of the work."
+        ]
+      },
+      {
+        "heading": "Where it falls over",
+        "paragraphs": [
+          "The dual encoder is good at terms it has seen variants of. It is not yet good at terms that exist only in their official MeSH phrasing. Hard negative mining helps. Synthetic paraphrase data from an LLM helps more and I have not shipped that yet."
+        ]
+      }
+    ]
+  }
+}
