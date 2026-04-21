@@ -1,29 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Project } from "@/types";
 import TechTag from "./TechTag";
 import ProjectBlog from "./ProjectBlog";
+import { slugify } from "@/lib/slug";
 
 export default function ProjectCard({ project }: { project: Project }) {
+  const slug = slugify(project.title);
   const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
 
-  const open = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const isMine = () => {
+      const p = window.location.pathname;
+      return p === `/projects/${slug}` || p === `/projects/${slug}/`;
+    };
+
+    const sync = () => {
+      if (isMine()) {
+        setOrigin((prev) =>
+          prev ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+        );
+      } else {
+        setOrigin((prev) => (prev ? null : prev));
+      }
+    };
+
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, [slug]);
+
+  const openFromClick = (e: React.MouseEvent) => {
     setOrigin({ x: e.clientX, y: e.clientY });
+    window.history.pushState({ slug }, "", `/projects/${slug}/`);
   };
 
   const openFromKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== "Enter" && e.key !== " ") return;
     e.preventDefault();
     const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-    setOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setOrigin({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
+    window.history.pushState({ slug }, "", `/projects/${slug}/`);
   };
+
+  const handleClose = useCallback(() => {
+    setOrigin(null);
+    if (window.location.pathname.startsWith(`/projects/${slug}`)) {
+      window.history.pushState({}, "", "/");
+    }
+  }, [slug]);
 
   return (
     <>
       <div className="card-item">
         <div
-          onClick={open}
+          onClick={openFromClick}
           onKeyDown={openFromKey}
           role="button"
           tabIndex={0}
@@ -81,7 +116,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         <ProjectBlog
           project={project}
           origin={origin}
-          onClose={() => setOrigin(null)}
+          onClose={handleClose}
         />
       )}
     </>
