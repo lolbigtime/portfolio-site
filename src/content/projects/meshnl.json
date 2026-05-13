@@ -5,48 +5,38 @@
   "url": "https://github.com/lolbigtime/MeshNL",
   "technologies": ["Python", "PyTorch", "BiomedBERT", "BioLORD", "HuggingFace Transformers"],
   "blog": {
-    "subtitle": "Teaching a model the shape of biomedical vocabulary",
+    "subtitle": "Two-stage retrieval for a vocabulary where the tail matters",
     "date": "February to April 2026",
     "readTime": "7 min read",
     "sections": [
       {
-        "heading": "Why MeSH is the hard case",
+        "heading": "Why MeSH classification is hard",
         "paragraphs": [
-          "MeSH is the controlled vocabulary PubMed tags every paper with. Around thirty thousand descriptors organized into a tree. Most are rare. The head of the distribution is dominated by Neoplasms and Humans, and everything in the humanities or history branches sees a handful of papers a year.",
-          "A zero-shot encoder will confidently map adjacent concepts to a similar-sounding but wrong MeSH term, and the error is subtle enough that a reviewer will not catch it. I wanted a model that respected the hierarchy."
+          "PubMed tags every paper in its database with MeSH descriptors, a controlled vocabulary of around thirty thousand terms organized into a tree. A zero-shot encoder maps adjacent concepts to similar-sounding but wrong terms, and on rare descriptors (anything outside the high-frequency head of the distribution like Neoplasms or Humans) it performs poorly. The problem with a mis-tagged paper isn't that it's obviously wrong, it's that it's subtly wrong in a way a reviewer won't catch, and the error propagates into any downstream analysis that uses MeSH for filtering."
         ]
       },
       {
-        "heading": "Stage one is a cheap filter",
+        "heading": "Two-stage design",
         "paragraphs": [
-          "Papers can tag multiple branches, so stage one is a multi-label classifier, not a multiclass one. Fifteen sigmoid outputs with binary cross-entropy, BiomedBERT as the backbone.",
-          "Class imbalance is severe. The loss is reweighted by inverse frequency so the Humanities branch gets as much gradient as the Neoplasms branch. Macro recall across 15 branches lands at 95.8 percent at a threshold tuned for recall first.",
-          "The only reason this stage exists is to narrow the candidate set for stage two from thirty thousand terms to a few thousand per paper. That is what makes stage two tractable."
+          "The system is a two-stage pipeline because a single dense retrieval model over all thirty thousand terms is expensive and unnecessary. Stage 1 is a multi-label classifier with fifteen sigmoid outputs, one per MeSH branch, using BiomedBERT as the backbone and a loss reweighted by inverse class frequency so rare branches receive proportional gradient. This stage's only job is to narrow the candidate set from thirty thousand to a few hundred per paper, making Stage 2 tractable. Stage 2 is a dual encoder: query tower BiomedBERT, term tower BioLORD, trained with InfoNCE loss over three million paper-term pairs at temperature 0.05."
         ]
       },
       {
-        "heading": "Stage two is a dual encoder",
+        "heading": "Hard negative mining",
         "paragraphs": [
-          "Query tower: BiomedBERT. Term tower: BioLORD, a model already pretrained on biomedical concept labels. I froze BioLORD for the first few epochs then unfroze so both towers could co-adapt.",
-          "Loss is InfoNCE over one million query-term pairs at temperature 0.05. The real trick is hard negative mining: every N batches, pull the top-K false positives from a nearest-neighbor lookup over the descriptor cache and add them as explicit negatives on the next step.",
-          "The descriptor cache is a flat tensor of every term vector, rebuilt after N batches. Bilateral gradients so both towers keep learning.",
-          "Recall at 50 on held-out papers: 2.2 times zero-shot. The gap is largest on the rare tail, which is the part I was actually optimizing for."
+          "Standard InfoNCE with random negatives doesn't produce a model that distinguishes between near-neighbor terms, which is exactly the failure mode that matters for rare tail terms. Every N batches, the training loop pulls the top-K false positives for each query from a nearest-neighbor lookup over the full descriptor embedding cache and adds them as explicit negatives in the next step. The cache is rebuilt after each update cycle so the hard negatives stay current as the model improves. BioLORD was frozen for the first few epochs and then unfrozen so both towers could co-adapt without the term tower drifting early in training."
         ]
       },
       {
-        "heading": "Training infrastructure was most of the work",
+        "heading": "Training infrastructure",
         "paragraphs": [
-          "I trained on Colab. Every serious person who has trained on Colab has a folder of recovery scripts, and I have one too.",
-          "The streaming MeSH XML parser reads the full release file without loading it into memory. Each descriptor is yielded as it parses and written to Parquet for the training pipeline. This is the commit titled mesh parsing done on day two of the project, and it is load-bearing for everything after.",
-          "Checkpointing writes optimizer state to Google Drive every N batches, not just weights. Resumption picks up mid-epoch. One Colab disconnect costs roughly forty minutes of compute instead of ten hours."
+          "Training ran on Colab, which required solving three problems that a managed training environment doesn't have. The streaming MeSH XML parser reads the full release file without loading it into memory, yielding each descriptor as it parses and writing to Parquet for the training pipeline. Checkpointing writes optimizer state to Google Drive every N batches (not just weights), so a disconnect costs forty minutes of compute instead of ten hours. The whole setup is more fragile than a proper training cluster, but the cost difference is significant enough that it was the right tradeoff."
         ]
       },
       {
-        "heading": "Evaluation is the receipt",
+        "heading": "Evaluation",
         "paragraphs": [
-          "The last commit before I called the project done is an evaluation notebook comparing BM25, frozen BioLORD, and the fine-tuned dual encoder on the same held-out set. It is the proof that the work mattered.",
-          "BM25 loses on everything. Frozen BioLORD is competitive on common branches and collapses on the tail. Fine-tuned BioLORD wins everywhere and wins biggest on the rare tail.",
-          "That is the model that gets loaded in production."
+          "The final evaluation compares BM25, frozen BioLORD, and the fine-tuned dual encoder on the same held-out set. BM25 performs worst across all branches. Frozen BioLORD is competitive on common branches and collapses on the tail. The fine-tuned model wins across all branches, with the largest gap on rare terms, which are the terms the training was actually designed to improve. Recall at 50 on held-out papers is 2.2 times zero-shot baseline."
         ]
       }
     ]
