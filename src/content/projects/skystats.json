@@ -4,49 +4,39 @@
   "url": "https://github.com/lolbigtime/SkyStats",
   "technologies": ["SwiftUI", "MongoDB", "Python"],
   "blog": {
-    "subtitle": "The app I learned everything on",
+    "subtitle": "What fifteen thousand users taught me about building software",
     "date": "October 2022 to March 2023",
     "readTime": "6 min read",
     "sections": [
       {
-        "heading": "The three year app",
+        "heading": "How it started",
         "paragraphs": [
-          "I built SkyStats when I was fifteen. By the time I retired it into SkyHub it had fifteen thousand people checking it every month. I did not plan for that. One Discord post carried it.",
-          "Everything I know about running a service for real users I learned from being woken up by this app."
+          "I built SkyStats at fifteen because I wanted a good way to check my Hypixel SkyBlock stats without opening a browser. One Discord post to a community server carried it to fifteen thousand monthly active users before I had any idea that was going to happen. That kind of unexpected scale is one of the faster ways to learn what makes software actually reliable."
         ]
       },
       {
-        "heading": "Six weeks to ship the core",
+        "heading": "Architecture that could grow",
         "paragraphs": [
-          "Inventory, ender chest, personal vault, collections, minions, and skills all landed in one week in late November 2022. Each view was a controller, a view model, and a SwiftUI detail screen. The commit history reads like a checklist.",
-          "December was sub-controllers: item drill-down, pet detail, equipment detail. Each list cell owned its own fetching, its own state, its own refresh, so the parent view did not have to know. That pattern is the reason the codebase could add features faster than it should have."
+          "The feature set expanded quickly: inventory, ender chest, personal vault, collections, minions, skills, item drill-down, pet detail, equipment detail, bazaar charts, auction tracking. The only reason that was possible without the codebase becoming unmanageable was a sub-controller pattern where each list cell owned its own fetching, state, and refresh logic. The parent view didn't need to know about the data requirements of its children, which meant adding a new feature was mostly additive and rarely required changing existing code."
         ]
       },
       {
-        "heading": "The bazaar cost me a month",
+        "heading": "What I got wrong with charts",
         "paragraphs": [
-          "Bazaar shipped Christmas week of 2022 and then became the entire next month of work. Buy-and-sell charts landed January 17. The portfolio tab where users tracked their own holdings landed January 27.",
-          "The charts were written from scratch over CoreGraphics instead of a charting library. That was wrong. I should have pulled in a dependency. I lost a week writing a horizontally zoomable candlestick view that does exactly what five libraries already do, badly."
+          "The bazaar charts were written from scratch using CoreGraphics instead of pulling in a charting library. That was the wrong call. Writing a horizontally zoomable candlestick view that handles touch input correctly cost about a week, and the result did exactly what five existing libraries already do. The lesson isn't that custom rendering is never worth it, it's that it needs a reason: performance constraints, a visual behavior that libraries can't express, or a tight size budget. None of those applied here."
         ]
       },
       {
-        "heading": "The auction house, and the one feature that mattered",
+        "heading": "Notification architecture",
         "paragraphs": [
-          "Three weeks in February for the auction module. Auction home screen, individual auction, auction item search, bid tracking, auction notifications.",
-          "The February 21 commit called auction notify is the feature that pushed me past three thousand daily actives, because no other Hypixel app was doing it. Notifications needed a local cache of watched items, a server-side fan-out that compared prices against the user watchlist on a schedule, and background fetches on iOS to wake the app up and deliver a local notification when a threshold hit."
+          "The auction notification feature was the single biggest driver of growth, moving daily actives past three thousand because no other Hypixel app was doing it at the time. The architecture had three pieces: a local cache of watched items stored on device, a server-side worker that compared live auction prices against each user's watchlist on a schedule, and background fetch on iOS to wake the app and deliver a local notification when a threshold was hit. Getting this right required understanding the constraints of iOS background execution, where the system controls how often your app is actually woken up and you have to do useful work in a narrow window."
         ]
       },
       {
-        "heading": "The rewrite nobody saw",
+        "heading": "The rewrite",
         "paragraphs": [
-          "Midway through I rewrote the iOS client from UIKit into SwiftUI. Same day I moved the backend off a Flask monolith onto a MongoDB-backed service. Visible change: cleaner UI. Invisible change: request latency dropped twenty percent because the new backend cached profile blobs and only recomputed networth when the cache was stale.",
-          "I shipped both the rewrite and a cosmetic redesign in the same update so users attributed the speed to the new look. This is a dirty trick and I would do it again."
-        ]
-      },
-      {
-        "heading": "Why I retired it",
-        "paragraphs": [
-          "The MongoDB document store could not evolve into something relational without a full migration. I did the migration. It is called SkyHub now. Same idea, different foundation."
+          "Midway through the project I rewrote the iOS client from UIKit to SwiftUI and migrated the backend from Flask to a MongoDB-backed service at the same time. The visible change was a cleaner UI. The less visible change was that request latency dropped around twenty percent, because the new backend cached profile blobs and only recomputed networth when the cache was stale rather than on every request. Both changes shipped in the same update.",
+          "The MongoDB document store eventually hit the same wall as every document store used for relational data: evolving the schema required migrations that the document model made painful. SkyHub is the rebuild that started from a relational foundation."
         ]
       }
     ]
