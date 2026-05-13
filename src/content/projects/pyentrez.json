@@ -5,45 +5,39 @@
   "url": "https://github.com/lolbigtime/PyEntrez",
   "technologies": ["Python", "NCBI EDirect", "PubMed", "MeSH"],
   "blog": {
-    "subtitle": "The wrapper I wrote because I got tired of shell pipes",
+    "subtitle": "A thin wrapper that does exactly one thing correctly",
     "date": "February 2026",
     "readTime": "5 min read",
     "sections": [
       {
-        "heading": "EDirect is the gold standard and also the problem",
+        "heading": "Why wrap EDirect instead of calling the API directly",
         "paragraphs": [
-          "NCBI ships EDirect, a set of command line tools that wrap the E-utilities API. esearch, efetch, elink, einfo, and a few others, chained together with shell pipes.",
-          "In a notebook or any Python script that wants to do anything concurrent, that pipe model is a land mine. Subprocesses block. Broken pipes disappear into silence. Non-zero exits are trivially lost if you are not explicitly watching for them.",
-          "PyEntrez started as a utility class and turned into the only way I query NCBI now."
+          "NCBI publishes E-utilities, a direct HTTP API for searching PubMed and fetching records. It also ships EDirect, a set of command-line tools that wrap E-utilities with batching, chunking, and retry logic already built in. PyEntrez wraps EDirect rather than calling E-utilities directly because EDirect has years of production handling of NCBI's edge cases: malformed XML responses, partial fetches, rate limit responses that look like server errors. Writing those handlers from scratch against the raw API means reimplementing work that already exists and is already correct.",
+          "The problem with EDirect in a Python context is the shell pipe model. Subprocesses block, broken pipes disappear without raising, and non-zero exits are silently discarded if you're not explicitly checking. In a Jupyter notebook or any concurrent Python script, that model is unreliable in ways that are hard to debug."
         ]
       },
       {
-        "heading": "Subprocesses, not pipes",
+        "heading": "Subprocess design",
         "paragraphs": [
-          "Each EDirect tool is invoked separately via subprocess.Popen. The output of one is read into Python, parsed, and passed to the next tool as stdin. That way I can catch non-zero exits, parse structured errors, and raise Python exceptions with the actual NCBI response attached.",
-          "Jupyter was still hanging. The fix that shipped on April 17 moved the subprocess IO onto a background thread. The Jupyter event loop was blocking on subprocess stdout reads; threading unblocks it.",
-          "If a call fails, it raises. That is what I meant by fails loudly."
+          "Each EDirect tool is invoked separately via `subprocess.Popen`. The output of one is read into Python, parsed, and passed to the next tool as stdin, so non-zero exits raise Python exceptions with the actual NCBI response attached rather than disappearing into the pipe. Jupyter was still blocking on subprocess stdout reads until the IO was moved to a background thread, which unblocked the event loop. The rule is that it fails loudly: no silent swallowing of errors, no retries that hide the original failure."
         ]
       },
       {
-        "heading": "Rate limits, because NCBI will notice",
+        "heading": "Rate limiting",
         "paragraphs": [
-          "NCBI allows three requests per second unauthenticated, ten with an API key. Exceed that and you get email from an actual human at NCBI, which is a uniquely bad feeling.",
-          "The batch worker uses a token-bucket limiter shared across threads. The bucket refills at the rate NCBI permits, and any worker trying to spend a token without one blocks until one is available. No retries, no backoff, just wait your turn."
+          "NCBI allows three requests per second unauthenticated and ten with an API key, and exceeding that rate results in a message from an actual human at NCBI. The batch worker uses a token-bucket limiter shared across threads, refilling at the rate NCBI permits, where any worker that needs a token and can't get one blocks until one is available. No retries, no exponential backoff, just wait your turn."
         ]
       },
       {
-        "heading": "Parsing PMC",
+        "heading": "Streaming XML",
         "paragraphs": [
-          "The April 18 parser shipped because I needed to bulk-download the Open Access subset. NCBI serves these as articleset XML files, up to a hundred articles inside one root element.",
-          "A naive XML parser loads the whole file. Instead I used lxml iterparse to walk the tree, split on the direct-child element boundary, and wrote each article to its own file. That lets the next stage fan out across processes instead of walking the file serially."
+          "The bulk download path uses `lxml` iterparse rather than loading a full articleset XML file into memory. Each article element is yielded as it parses and written to its own file, which lets the next stage fan out across processes instead of walking a large file serially. This matters at the scale of the Open Access subset, where the files are large enough that a DOM parser exhausts available memory."
         ]
       },
       {
-        "heading": "Why it stayed small",
+        "heading": "Scope",
         "paragraphs": [
-          "I kept rejecting features. A library that tries to be a search engine on top of an API is a library that will break every time the API changes. PyEntrez exposes only what EDirect exposes. If you want something fancier, build it on top.",
-          "The core stays boring and boring is why it still works."
+          "PyEntrez exposes what EDirect exposes and nothing more. It doesn't add search ranking, result filtering, or any logic that tries to interpret what NCBI returns. That scope is a deliberate design decision: a library that adds behavior on top of an API has to track every API change that affects that behavior, and NCBI changes its response formats more often than its interfaces. Keeping the wrapper thin means it stays correct without maintenance."
         ]
       }
     ]
