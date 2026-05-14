@@ -16,8 +16,8 @@ export const experiences: Experience[] = [
     url: "https://www.ucsf.edu",
     range: "2022 — Present",
     description:
-      "Developing an NLP pipeline using PubMedBERT and local LLMs to extract structured cell differentiation protocols from ~300,000 PubMed papers, building a unified database linking source cells, growth factors, and experimental conditions for stem cell research. Also designed bioinformatics pipelines predicting miRNA-mRNA interactions related to NAFLD, contributing to a published paper on regulatory networks in metabolic disease.",
-    technologies: ["Python", "PubMedBERT", "NLP", "Bioinformatics", "PostgreSQL"],
+      "Built Hep-Diff-Mining, an 18-step agentic LLM pipeline submitted to Nature Computational Science that extracted 878 hepatocyte differentiation protocols from 544 PMC papers and 179,353 GEO expression values, with multi-layered anti-hallucination design. Also developed an NLP pipeline using PubMedBERT and local LLMs to build a unified database of stem cell protocols, and designed bioinformatics pipelines predicting miRNA-mRNA interactions related to NAFLD.",
+    technologies: ["Python", "LangGraph", "PubMedBERT", "NLP", "Bioinformatics", "PostgreSQL"],
   },
   {
     title: "Deep Learning Research Intern",
