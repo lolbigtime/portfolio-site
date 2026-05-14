@@ -2,7 +2,7 @@ export default function SocialIcons() {
   const links = [
     {
       label: "GitHub",
-      href: "https://github.com/lolbigtime",
+      href: "https://github.com/taiwong2",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
